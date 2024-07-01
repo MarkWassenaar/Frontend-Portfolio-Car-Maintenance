@@ -1,18 +1,18 @@
 import { ReactNode } from "react";
-import Navbar from "./Navbar";
-// import Footer from "./Footer";
 
+import Footer from "./Footer";
+import Navbar from "./Navbar";
 interface LayoutProps {
   children?: ReactNode;
 }
 
 const Layout = (props: LayoutProps) => {
   return (
-    <>
+    <div className="flex flexbox flex-col min-h-screen">
       <Navbar />
-      <main className="content">{props.children}</main>
-      {/* <Footer /> */}
-    </>
+      <main className=" flex-grow mt-32">{props.children}</main>
+      <Footer />
+    </div>
   );
 };
 export default Layout;

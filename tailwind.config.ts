@@ -1,6 +1,6 @@
-import type { Config } from "tailwindcss";
+// tailwind.config.js
 
-const config: Config = {
+module.exports = {
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -8,13 +8,11 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      backgroundImage: {
-        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-        "gradient-conic":
-          "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
+      colors: {
+        "dutch-license-plate-bg": "#FFCC00", // Yellow background
+        "dutch-license-plate-text": "#000000", // Black text
       },
     },
   },
   plugins: [],
 };
-export default config;

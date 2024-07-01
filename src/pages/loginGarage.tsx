@@ -1,28 +1,27 @@
 import Layout from "@/components/Layout";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-const RegisterUserValidator = z
+const LoginGarageValidator = z
   .object({
-    username: z.string().min(4),
+    username: z.string().email(),
     password: z.string().min(5),
   })
   .strict();
 
-type RegisterUser = z.infer<typeof RegisterUserValidator>;
+type LoginGarage = z.infer<typeof LoginGarageValidator>;
 
-const RegisterPage = () => {
+const GarageLoginPage = () => {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<RegisterUser>({
-    resolver: zodResolver(RegisterUserValidator),
+  } = useForm<LoginGarage>({
+    resolver: zodResolver(LoginGarageValidator),
   });
-
   const router = useRouter();
 
   useEffect(() => {
@@ -32,19 +31,21 @@ const RegisterPage = () => {
     }
   }, [router]);
 
-  const handleRegisterFormSubmit = async (data: RegisterUser) => {
-    const response = await fetch(`http://localhost:3001/register`, {
+  const handleLoginFormSubmit = async (data: LoginGarage) => {
+    const result = await fetch("http://localhost:3001/logingarage", {
       method: "POST",
-      body: JSON.stringify({ ...data }),
       headers: {
-        "content-type": "application/json",
+        "Content-Type": "application/json",
       },
+      body: JSON.stringify({ ...data }),
     });
 
-    if (response.ok) {
-      router.push("/login");
-    } else {
-      console.log("Something went wrong!");
+    const json = await result.json();
+    console.log(json);
+    if (json.token) {
+      localStorage.setItem("token", json.token);
+      localStorage.setItem("type", json.type);
+      router.push("/garage");
     }
   };
 
@@ -52,17 +53,17 @@ const RegisterPage = () => {
     <Layout>
       <div className="flex justify-center items-center min-h-screen bg-gray-100">
         <form
-          onSubmit={handleSubmit(handleRegisterFormSubmit)}
+          onSubmit={handleSubmit(handleLoginFormSubmit)}
           className="bg-white p-6 rounded-lg shadow-md w-full max-w-md"
         >
-          <h2 className="text-2xl font-bold mb-6 text-center">Sign Up</h2>
+          <h2 className="text-2xl font-bold mb-6 text-center">Login Garage</h2>
 
           <div className="mb-4">
             <label
               htmlFor="username"
               className="block text-gray-700 font-medium mb-2"
             >
-              Username
+              Email
             </label>
             <input
               id="username"
@@ -71,9 +72,7 @@ const RegisterPage = () => {
               className="w-full p-3 border border-gray-300 rounded"
             />
             {errors.username && (
-              <p className="text-red-500 text-sm mt-1">
-                Invalid Username address
-              </p>
+              <p className="text-red-500 text-sm mt-1">Invalid email address</p>
             )}
           </div>
 
@@ -101,11 +100,12 @@ const RegisterPage = () => {
             type="submit"
             className="w-full bg-blue-500 text-white p-3 rounded hover:bg-blue-600"
           >
-            Register
+            Log In
           </button>
         </form>
       </div>
     </Layout>
   );
 };
-export default RegisterPage;
+
+export default GarageLoginPage;

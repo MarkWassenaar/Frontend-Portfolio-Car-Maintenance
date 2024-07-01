@@ -5,22 +5,23 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-const RegisterUserValidator = z
+const RegisterGarageValidator = z
   .object({
-    username: z.string().min(4),
+    name: z.string().min(1),
+    username: z.string().email(),
     password: z.string().min(5),
   })
   .strict();
 
-type RegisterUser = z.infer<typeof RegisterUserValidator>;
+type RegisterGarage = z.infer<typeof RegisterGarageValidator>;
 
-const RegisterPage = () => {
+const RegisterGaragePage = () => {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<RegisterUser>({
-    resolver: zodResolver(RegisterUserValidator),
+  } = useForm<RegisterGarage>({
+    resolver: zodResolver(RegisterGarageValidator),
   });
 
   const router = useRouter();
@@ -32,8 +33,8 @@ const RegisterPage = () => {
     }
   }, [router]);
 
-  const handleRegisterFormSubmit = async (data: RegisterUser) => {
-    const response = await fetch(`http://localhost:3001/register`, {
+  const handleRegisterFormSubmit = async (data: RegisterGarage) => {
+    const response = await fetch(`http://localhost:3001/registergarage`, {
       method: "POST",
       body: JSON.stringify({ ...data }),
       headers: {
@@ -42,7 +43,7 @@ const RegisterPage = () => {
     });
 
     if (response.ok) {
-      router.push("/login");
+      router.push("/loginGarage");
     } else {
       console.log("Something went wrong!");
     }
@@ -55,14 +56,36 @@ const RegisterPage = () => {
           onSubmit={handleSubmit(handleRegisterFormSubmit)}
           className="bg-white p-6 rounded-lg shadow-md w-full max-w-md"
         >
-          <h2 className="text-2xl font-bold mb-6 text-center">Sign Up</h2>
+          <h2 className="text-2xl font-bold mb-6 text-center">
+            Register Garage
+          </h2>
+
+          <div className="mb-4">
+            <label
+              htmlFor="name"
+              className="block text-gray-700 font-medium mb-2"
+            >
+              Garage Name
+            </label>
+            <input
+              id="name"
+              type="text"
+              {...register("name")}
+              className="w-full p-3 border border-gray-300 rounded"
+            />
+            {errors.name && (
+              <p className="text-red-500 text-sm mt-1">
+                Name must be at least 1 character long
+              </p>
+            )}
+          </div>
 
           <div className="mb-4">
             <label
               htmlFor="username"
               className="block text-gray-700 font-medium mb-2"
             >
-              Username
+              Email
             </label>
             <input
               id="username"
@@ -71,9 +94,7 @@ const RegisterPage = () => {
               className="w-full p-3 border border-gray-300 rounded"
             />
             {errors.username && (
-              <p className="text-red-500 text-sm mt-1">
-                Invalid Username address
-              </p>
+              <p className="text-red-500 text-sm mt-1">Invalid email address</p>
             )}
           </div>
 
@@ -108,4 +129,4 @@ const RegisterPage = () => {
     </Layout>
   );
 };
-export default RegisterPage;
+export default RegisterGaragePage;
