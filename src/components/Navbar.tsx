@@ -10,7 +10,7 @@ const Navbar = () => {
   }, []);
 
   return (
-    <nav className="flex bg-white fixed top-0 max-h-18 shadow-xl items-center justify-between text-stone-500 w-full p-4 list-none">
+    <nav className="flex bg-white fixed top-0 max-h-18 shadow-lg items-center justify-between text-stone-500 w-full p-4 list-none">
       <div className="flex gap-6 items-center font-bold text-blue-400 text-2xl">
         <Link href="/">
           <img className="w-20 h-18" src="/logo.png" />

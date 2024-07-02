@@ -4,7 +4,7 @@ import Link from "next/link";
 const HomePage = () => {
   return (
     <Layout>
-      <div className="container mx-auto text-center py-16">
+      <div className="container mx-auto text-center  mt-32 py-16">
         <h1 className="text-4xl font-bold mb-4">
           Keep Your Car Running Smoothly
         </h1>
@@ -108,7 +108,7 @@ const HomePage = () => {
             manage bids easily.
           </p>
           <Link
-            href="/registerGarage"
+            href="/registergarage"
             className="bg-blue-600 text-white py-2 px-4 rounded-full font-semibold hover:bg-blue-700"
           >
             Join Us

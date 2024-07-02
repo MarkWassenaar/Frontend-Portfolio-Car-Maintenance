@@ -94,11 +94,6 @@ const GaragePage = () => {
     getUserJobsFromApi(tokenFromStorage);
   }, [router]);
 
-  const handleMakeBid = (userJob: UserJob) => {
-    setSelectedUserJob(userJob);
-    setShowBidModal(true);
-  };
-
   const handleRemoveBid = async (bidId: number) => {
     if (!token) return;
 
@@ -113,76 +108,60 @@ const GaragePage = () => {
       if (response.ok) {
         getUserJobsFromApi(token);
       } else {
-        console.log("Failed to delete car");
+        console.log("Failed to delete bid");
       }
     } catch (error) {
       console.error(error);
     }
   };
 
-  const handleEditBid = async () => {
-    if (!token || !selectedUserJob) return;
-
-    try {
-      const response = await fetch(
-        `http://localhost:3001/userJobs/${selectedUserJob.id}/bids`,
-        {
-          method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            amount: bidAmount,
-            garageId: garageId,
-          }),
-        }
-      );
-
-      if (response.ok) {
-        getUserJobsFromApi(token);
-      } else {
-        console.error("Failed to make a bid");
-      }
-    } catch (error) {
-      console.error("An error occurred while making a bid:", error);
-    }
-
-    setShowBidModal(false);
-    setSelectedUserJob(null);
+  const handleMakeBid = (userJob: UserJob) => {
+    setSelectedUserJob(userJob);
+    setSelectedBid(null);
     setBidAmount(0);
+    setShowBidModal(true);
+  };
+
+  const handleEditBid = (userJob: UserJob, bid: Bid) => {
+    setSelectedUserJob(userJob);
+    setSelectedBid(bid);
+    setBidAmount(bid.amount);
+    setShowBidModal(true);
   };
 
   const handleSubmitBid = async () => {
     if (!token || !selectedUserJob) return;
 
     try {
-      const response = await fetch(
-        `http://localhost:3001/userJobs/${selectedUserJob.id}/bids`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            amount: bidAmount,
-            garageId: garageId,
-          }),
-        }
-      );
+      const url = selectedBid
+        ? `http://localhost:3001/userJobs/${selectedUserJob.id}/bids/${selectedBid.id}`
+        : `http://localhost:3001/userJobs/${selectedUserJob.id}/bids`;
+      const method = selectedBid ? "PATCH" : "POST";
+
+      const response = await fetch(url, {
+        method,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          amount: bidAmount,
+          garageId: garageId,
+        }),
+      });
 
       if (response.ok) {
         getUserJobsFromApi(token);
       } else {
-        console.error("Failed to make a bid");
+        console.error("Failed to submit the bid");
       }
     } catch (error) {
-      console.error("An error occurred while making a bid:", error);
+      console.error("An error occurred while submitting the bid:", error);
     }
 
     setShowBidModal(false);
     setSelectedUserJob(null);
+    setSelectedBid(null);
     setBidAmount(0);
   };
 
@@ -217,7 +196,7 @@ const GaragePage = () => {
 
   return (
     <Layout>
-      <div className="p-4  mt-32">
+      <div className="p-4 mt-32">
         <h1 className="text-2xl font-bold mb-6 text-center">Bids Overview</h1>
         <div className="flex flex-col md:flex-row">
           <div className="flex-1 bg-green-100 p-4 rounded-lg md:mr-2">
@@ -242,7 +221,7 @@ const GaragePage = () => {
                     {userJob.Bid.find((bid) => bid.accepted)?.amount}
                   </p>
                   <p>
-                    <strong>Last Service:</strong>{" "}
+                    <strong>Date:</strong>{" "}
                     {userJob.lastService.toLocaleDateString()}
                   </p>
                   <p>
@@ -275,7 +254,7 @@ const GaragePage = () => {
                     <strong>Bid Amount:</strong> ${bid.amount}
                   </p>
                   <p>
-                    <strong>Last Service:</strong>{" "}
+                    <strong>Date:</strong>{" "}
                     {bid.userJob.lastService.toLocaleDateString()}
                   </p>
                   <p>
@@ -283,7 +262,7 @@ const GaragePage = () => {
                   </p>
                   <div className="flex gap-3">
                     <button
-                      onClick={() => handleEditBid()}
+                      onClick={() => handleEditBid(bid.userJob, bid)}
                       className="p-2 mt-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
                     >
                       Edit Bid
@@ -321,7 +300,7 @@ const GaragePage = () => {
                   <strong>Job Description:</strong> {userJob.job.description}
                 </p>
                 <p>
-                  <strong>Last Service:</strong>{" "}
+                  <strong>Date:</strong>{" "}
                   {userJob.lastService.toLocaleDateString()}
                 </p>
                 <p>
@@ -340,7 +319,9 @@ const GaragePage = () => {
         {showBidModal && selectedUserJob && (
           <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
             <div className="bg-white p-6 rounded-lg w-1/2">
-              <h2 className="text-xl font-bold mb-4">Make a Bid</h2>
+              <h2 className="text-xl font-bold mb-4">
+                {selectedBid ? "Edit Bid" : "Make a Bid"}
+              </h2>
               <p className="mb-4">Enter your bid amount for:</p>
               <p>
                 <strong>Car:</strong> {selectedUserJob.car.make}{" "}
@@ -363,7 +344,12 @@ const GaragePage = () => {
               />
               <div className="mt-4 flex justify-end">
                 <button
-                  onClick={() => setShowBidModal(false)}
+                  onClick={() => {
+                    setShowBidModal(false);
+                    setSelectedUserJob(null);
+                    setSelectedBid(null);
+                    setBidAmount(0);
+                  }}
                   className="mr-2 px-4 py-2 bg-gray-500 text-white rounded-lg"
                 >
                   Cancel
@@ -372,7 +358,7 @@ const GaragePage = () => {
                   onClick={handleSubmitBid}
                   className="px-4 py-2 bg-blue-500 text-white rounded-lg"
                 >
-                  Submit Bid
+                  {selectedBid ? "Update Bid" : "Submit Bid"}
                 </button>
               </div>
             </div>

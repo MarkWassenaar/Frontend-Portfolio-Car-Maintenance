@@ -10,7 +10,7 @@ const Layout = (props: LayoutProps) => {
   return (
     <div className="flex flexbox flex-col min-h-screen">
       <Navbar />
-      <main className=" flex-grow mt-32">{props.children}</main>
+      <main className=" flex-grow">{props.children}</main>
       <Footer />
     </div>
   );

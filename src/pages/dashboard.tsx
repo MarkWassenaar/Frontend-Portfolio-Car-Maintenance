@@ -17,7 +17,10 @@ const carValidator = z
     UserJob: z.array(
       z.object({
         id: z.number().positive(),
-        lastService: z.string().transform((str) => new Date(str)), // handle date as string
+        lastService: z
+          .string()
+          .datetime()
+          .transform((str) => new Date(str)), // handle string as date
         job: z.object({
           id: z.number().positive(),
           description: z.string(),
@@ -336,7 +339,7 @@ const DashboardPage = () => {
 
   return (
     <Layout>
-      <div className="flex">
+      <div className="flex  mt-32">
         {/* Car Half */}
 
         {/* Add Car Form */}
@@ -612,44 +615,47 @@ const DashboardPage = () => {
                           )}
                         </li>
                       </ul>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleViewBids(job.id)}
+                          className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                        >
+                          {viewingBidsForJobId === job.id
+                            ? "Hide Bids"
+                            : "View Bids"}
+                        </button>
 
-                      <button
-                        onClick={() => handleViewBids(job.id)}
-                        className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                      >
-                        {viewingBidsForJobId === job.id
-                          ? "Hide Bids"
-                          : "View Bids"}
-                      </button>
+                        {viewingBidsForJobId === job.id && (
+                          <ul className="mt-4">
+                            {job.Bid.map((bid) => (
+                              <li
+                                key={bid.id}
+                                className="flex items-center space-x-2"
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={acceptedBids[job.id] === bid.id}
+                                  onChange={() =>
+                                    handleAcceptBid(job.id, bid.id)
+                                  }
+                                  className="form-checkbox h-4 w-4"
+                                />
+                                <span>
+                                  Bid Amount: {bid.amount}, Garage:{" "}
+                                  {bid.garage.name}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
 
-                      {viewingBidsForJobId === job.id && (
-                        <ul className="mt-4">
-                          {job.Bid.map((bid) => (
-                            <li
-                              key={bid.id}
-                              className="flex items-center space-x-2"
-                            >
-                              <input
-                                type="checkbox"
-                                checked={acceptedBids[job.id] === bid.id}
-                                onChange={() => handleAcceptBid(job.id, bid.id)}
-                                className="form-checkbox h-4 w-4"
-                              />
-                              <span>
-                                Bid Amount: {bid.amount}, Garage:{" "}
-                                {bid.garage.name}
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-
-                      <button
-                        onClick={() => handleRemoveJob(job.id)}
-                        className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-                      >
-                        Remove Job
-                      </button>
+                        <button
+                          onClick={() => handleRemoveJob(job.id)}
+                          className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                        >
+                          Remove Job
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}

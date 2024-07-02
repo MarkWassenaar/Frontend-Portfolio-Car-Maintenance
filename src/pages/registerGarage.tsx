@@ -1,5 +1,6 @@
 import Layout from "@/components/Layout";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -57,7 +58,7 @@ const RegisterGaragePage = () => {
           className="bg-white p-6 rounded-lg shadow-md w-full max-w-md"
         >
           <h2 className="text-2xl font-bold mb-6 text-center">
-            Register Garage
+            Sign Up as Garage
           </h2>
 
           <div className="mb-4">
@@ -124,6 +125,12 @@ const RegisterGaragePage = () => {
           >
             Register
           </button>
+          <p className="mt-4">
+            Already have an account? Log in{" "}
+            <Link className="text-blue-400 underline" href="/logingarage">
+              here
+            </Link>
+          </p>
         </form>
       </div>
     </Layout>

@@ -1,5 +1,6 @@
 import Layout from "@/components/Layout";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -103,6 +104,18 @@ const RegisterPage = () => {
           >
             Register
           </button>
+          <p className="mt-4">
+            Are you a garage? Sign up{" "}
+            <Link className="text-blue-400 underline" href="/registergarage">
+              here
+            </Link>
+          </p>
+          <p className="mt-4">
+            Already have an account? Log in{" "}
+            <Link className="text-blue-400 underline" href="/login">
+              here
+            </Link>
+          </p>
         </form>
       </div>
     </Layout>
