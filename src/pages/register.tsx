@@ -10,6 +10,7 @@ const RegisterUserValidator = z
   .object({
     username: z.string().min(4),
     password: z.string().min(5),
+    phonenumber: z.string().min(7),
   })
   .strict();
 
@@ -94,6 +95,26 @@ const RegisterPage = () => {
             {errors.password && (
               <p className="text-red-500 text-sm mt-1">
                 Password must be at least 5 characters long
+              </p>
+            )}
+          </div>
+
+          <div className="mb-6">
+            <label
+              htmlFor="phonenumber"
+              className="block text-gray-700 font-medium mb-2"
+            >
+              Phonenumber
+            </label>
+            <input
+              id="phonenumber"
+              type="phonenumber"
+              {...register("phonenumber")}
+              className="w-full p-3 border border-gray-300 rounded"
+            />
+            {errors.phonenumber && (
+              <p className="text-red-500 text-sm mt-1">
+                Phonenumber must be at least 5 characters long
               </p>
             )}
           </div>

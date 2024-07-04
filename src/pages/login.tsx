@@ -29,7 +29,7 @@ const UserLoginPage = () => {
   useEffect(() => {
     const tokenFromStorage = localStorage.getItem("token");
     if (tokenFromStorage !== null) {
-      router.push("/");
+      router.push("/dashboard");
     }
   }, [router]);
 

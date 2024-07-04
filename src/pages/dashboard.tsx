@@ -4,13 +4,16 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { ZodError, z } from "zod";
+import { CheckIcon, ChevronRightIcon } from "lucide-react";
+
+import { AnimatedSubscribeButton } from "@/components/magicui/animated-subscribe-button";
 
 const carValidator = z
   .object({
     id: z.number().positive(),
     make: z.string(),
     model: z.string(),
-    img: z.string().url().optional().nullable(),
+    img: z.string().url().optional(),
     licenseplate: z.string(),
     year: z.number().int(),
     userId: z.number().positive(),
@@ -138,6 +141,7 @@ const DashboardPage = () => {
         // Update the selectedCar state to reflect the removed job
         const updatedCar = await getUpdatedCarFromApi(selectedCar.id, token);
         setSelectedCar(updatedCar);
+        getCarsFromApi(token);
       } else {
         console.log("Failed to remove job");
       }
@@ -188,6 +192,7 @@ const DashboardPage = () => {
         const updatedCar = await getUpdatedCarFromApi(selectedCar.id, token);
         setSelectedCar(updatedCar);
         setShowJobForm(false);
+        getCarsFromApi(token);
       } else {
         console.log("Failed to add job");
       }
@@ -284,6 +289,27 @@ const DashboardPage = () => {
     setAcceptedBids(initialAcceptedBids);
   }, [selectedCar]);
 
+  const getCarsFromApi = async (token: string) => {
+    try {
+      const response = await fetch("http://localhost:3001/dashboard", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+
+      const validated = arrayOfCarsValidator.safeParse(data);
+
+      if (validated.success) {
+        setCars(validated.data);
+      } else {
+        setError(validated.error);
+      }
+    } catch (err) {
+      setError(error);
+    }
+  };
+
   useEffect(() => {
     const tokenFromStorage = localStorage.getItem("token");
     const typeFromStorage = localStorage.getItem("type");
@@ -297,27 +323,6 @@ const DashboardPage = () => {
     }
 
     setToken(tokenFromStorage);
-
-    const getCarsFromApi = async (token: string) => {
-      try {
-        const response = await fetch("http://localhost:3001/dashboard", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const data = await response.json();
-
-        const validated = arrayOfCarsValidator.safeParse(data);
-
-        if (validated.success) {
-          setCars(validated.data);
-        } else {
-          setError(validated.error);
-        }
-      } catch (err) {
-        setError(error);
-      }
-    };
 
     getCarsFromApi(tokenFromStorage);
   }, [router]);
@@ -454,7 +459,6 @@ const DashboardPage = () => {
           )}
 
           {/* Overview of Cars */}
-
           <ul>
             {cars.length === 0 ? (
               <p>No Cars found</p>
@@ -462,25 +466,37 @@ const DashboardPage = () => {
               cars.map((car) => (
                 <li
                   key={car.id}
-                  className={`p-4 mb-4 border rounded cursor-pointer shadow-lg ${
-                    selectedCar?.id === car.id
-                      ? "bg-gray-200"
-                      : "hover:bg-gray-100"
+                  className={`p-4 mb-4  rounded cursor-pointer shadow-lg border-2 border-blue-500 border-opacity-0 transition-all duration-75 hover:border-opacity-60 hover:scale-105 ${
+                    selectedCar?.id === car.id ? "border-opacity-100" : ""
                   }`}
                   onClick={() => setSelectedCar(car)}
                 >
-                  <h3 className="text-xl font-semibold">
-                    {car.make} {car.model}
-                  </h3>
-                  {car.img && (
-                    <img
-                      src={car.img}
-                      alt={car.model}
-                      className="w-full h-auto mt-2"
-                    />
-                  )}
-                  <p className="mt-2">Year: {car.year}</p>
-                  <p>Licenseplate: {car.licenseplate}</p>
+                  <div className="flex flex-col rounded-lg">
+                    <div className="flex justify-center items-center h-1/5 my-4"></div>
+                    <div className="flex justify-between items-center h-24 mb-8 bg-gradient-to-b from-blue-500 to-transparent pl-4 pr-4 rounded-sm">
+                      <div>
+                        <p className="mb-1 text-base ">{car.make}</p>
+                        <p className="m-0 font-bold text-xl">{car.model}</p>
+                      </div>
+                      <img src={car.img} alt="Car" className="w-3/5" />
+                    </div>
+                    <div className="flex justify-between items-center h-2/5 px-8 mb-4">
+                      <div className="flex flex-col items-center">
+                        <p className="font-bold">Year</p>
+                        <p>{car.year}</p>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <p className="font-bold">Licenseplate</p>
+                        <p className="mt-1 p-2 w-32 border rounded bg-dutch-license-plate-bg text-dutch-license-plate-text font-bold tracking-wide text-center uppercase">
+                          {car.licenseplate}
+                        </p>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <p className="font-bold">Number of Jobs</p>
+                        <p>{car.UserJob.length}</p>
+                      </div>
+                    </div>
+                  </div>
                   <button
                     onClick={(e) => {
                       handleRemoveCar(car.id);
@@ -576,8 +592,8 @@ const DashboardPage = () => {
 
               <div className="space-y-4">
                 {selectedCar.UserJob.map((job) => (
-                  <div key={job.id} className="flex items-start">
-                    <div className="mr-4">
+                  <div key={job.id} className="flex items-start w-[800px]">
+                    <div className="mr-4 ">
                       <p className="font-semibold text-lg">
                         {job.lastService.toLocaleDateString("en-US", {
                           weekday: "short",
@@ -632,14 +648,21 @@ const DashboardPage = () => {
                                 key={bid.id}
                                 className="flex items-center space-x-2"
                               >
-                                <input
-                                  type="checkbox"
-                                  checked={acceptedBids[job.id] === bid.id}
-                                  onChange={() =>
+                                <button
+                                  className={`flex p-4 m-1 text-white rounded ${
+                                    acceptedBids[job.id] === bid.id
+                                      ? ` bg-green-400 hover:bg-green-500 `
+                                      : ` bg-yellow-400 hover:bg-yellow-500`
+                                  }`}
+                                  onClick={() =>
                                     handleAcceptBid(job.id, bid.id)
                                   }
-                                  className="form-checkbox h-4 w-4"
-                                />
+                                >
+                                  {acceptedBids[job.id] === bid.id
+                                    ? "Accepted Bid"
+                                    : "Accept Bid"}
+                                </button>
+
                                 <span>
                                   Bid Amount: {bid.amount}, Garage:{" "}
                                   {bid.garage.name}

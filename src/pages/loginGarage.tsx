@@ -28,7 +28,7 @@ const GarageLoginPage = () => {
   useEffect(() => {
     const tokenFromStorage = localStorage.getItem("token");
     if (tokenFromStorage !== null) {
-      router.push("/");
+      router.push("/garage");
     }
   }, [router]);
 
