@@ -35,13 +35,16 @@ const RegisterGaragePage = () => {
   }, [router]);
 
   const handleRegisterFormSubmit = async (data: RegisterGarage) => {
-    const response = await fetch(`http://localhost:3001/registergarage`, {
-      method: "POST",
-      body: JSON.stringify({ ...data }),
-      headers: {
-        "content-type": "application/json",
-      },
-    });
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/registergarage`,
+      {
+        method: "POST",
+        body: JSON.stringify({ ...data }),
+        headers: {
+          "content-type": "application/json",
+        },
+      }
+    );
 
     if (response.ok) {
       router.push("/loginGarage");

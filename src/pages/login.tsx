@@ -34,7 +34,7 @@ const UserLoginPage = () => {
   }, [router]);
 
   const handleLoginFormSubmit = async (data: LoginUser) => {
-    const result = await fetch("http://localhost:3001/login", {
+    const result = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/login`, {
       method: "POST",
       body: JSON.stringify({ ...data }),
       headers: {

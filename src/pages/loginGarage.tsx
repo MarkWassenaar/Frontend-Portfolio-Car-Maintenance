@@ -33,13 +33,16 @@ const GarageLoginPage = () => {
   }, [router]);
 
   const handleLoginFormSubmit = async (data: LoginGarage) => {
-    const result = await fetch("http://localhost:3001/logingarage", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ ...data }),
-    });
+    const result = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/logingarage`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ ...data }),
+      }
+    );
 
     const json = await result.json();
     console.log(json);

@@ -60,11 +60,14 @@ const GaragePage = () => {
 
   const getUserJobsFromApi = async (token: string) => {
     try {
-      const response = await fetch("http://localhost:3001/myuserjobs", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/myuserjobs`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       const data = await response.json();
 
       const validated = arrayOfUserJobsValidator.safeParse(data);
@@ -120,12 +123,15 @@ const GaragePage = () => {
     if (!token) return;
 
     try {
-      const response = await fetch(`http://localhost:3001/bid/${bidId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/bid/${bidId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (response.ok) {
         getUserJobsFromApi(token);
@@ -156,8 +162,8 @@ const GaragePage = () => {
 
     try {
       const url = selectedBid
-        ? `http://localhost:3001/userJobs/${selectedUserJob.id}/bids/${selectedBid.id}`
-        : `http://localhost:3001/userJobs/${selectedUserJob.id}/bids`;
+        ? `${process.env.NEXT_PUBLIC_API_URL}/userJobs/${selectedUserJob.id}/bids/${selectedBid.id}`
+        : `${process.env.NEXT_PUBLIC_API_URL}/userJobs/${selectedUserJob.id}/bids`;
       const method = selectedBid ? "PATCH" : "POST";
 
       const response = await fetch(url, {
@@ -301,28 +307,47 @@ const GaragePage = () => {
             ) : (
               unacceptedBids.map((bid, index) => (
                 <div key={index} className="p-2 mb-2 bg-white rounded shadow">
-                  <p>
-                    <strong>Car:</strong> {bid.userJob.car.make}{" "}
-                    {bid.userJob.car.model} ({bid.userJob.car.year})
-                  </p>
-                  <p>
-                    <strong>License Plate:</strong>{" "}
-                    {bid.userJob.car.licenseplate}
-                  </p>
-                  <p>
-                    <strong>Job Description:</strong>{" "}
-                    {bid.userJob.job.description}
-                  </p>
-                  <p>
-                    <strong>Bid Amount:</strong> ${bid.amount}
-                  </p>
-                  <p>
-                    <strong>Date:</strong>{" "}
-                    {bid.userJob.lastService.toLocaleDateString()}
-                  </p>
-                  <p>
-                    <strong>Owner:</strong> {bid.userJob.car.user.username}
-                  </p>
+                  <div className="flex flex-col rounded-lg">
+                    <div className="flex justify-center items-center h-1/5 mt-4 mb-12">
+                      <p className="font-bold text-lg">
+                        {bid.userJob.job.description}
+                      </p>
+                    </div>
+                    <div className="flex justify-between items-center h-24 mb-8 bg-gradient-to-b from-blue-500 to-transparent pl-4 pr-4 rounded-sm">
+                      <div className="ml-12">
+                        <p className="mb-1 text-base">{bid.userJob.car.make}</p>
+                        <p className="m-0 font-bold text-xl">
+                          {bid.userJob.car.model}
+                        </p>
+                      </div>
+                      <img
+                        src={bid.userJob.car.img}
+                        alt="Car"
+                        className="w-2/5"
+                      />
+                    </div>
+                    <div className="flex justify-between items-center h-2/5 px-8 mb-4 mt-12">
+                      <div className="flex flex-col items-center">
+                        <p className="font-bold">Bid</p>
+                        <p>{bid.amount}</p>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <p className="font-bold">Year</p>
+                        <p>{bid.userJob.car.year}</p>
+                      </div>
+
+                      <div className="flex flex-col items-center">
+                        <p className="font-bold">Licenseplate</p>
+                        <p className="mt-1 p-2 w-32 border rounded bg-dutch-license-plate-bg text-dutch-license-plate-text font-bold tracking-wide text-center uppercase">
+                          {bid.userJob.car.licenseplate}
+                        </p>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <p className="font-bold">Date</p>
+                        <p>{bid.userJob.lastService.toLocaleDateString()}</p>
+                      </div>
+                    </div>
+                  </div>
                   <div className="flex gap-3">
                     <button
                       onClick={() => handleEditBid(bid.userJob, bid)}
@@ -343,6 +368,7 @@ const GaragePage = () => {
           </div>
         </div>
       </div>
+
       {showBidModal && selectedUserJob && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
           <div className="bg-white p-6 rounded-lg w-1/2">

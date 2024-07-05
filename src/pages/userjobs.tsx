@@ -20,11 +20,14 @@ const Userjobs = () => {
 
   const getUserJobsFromApi = async (token: string) => {
     try {
-      const response = await fetch("http://localhost:3001/alluserjobs", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/alluserjobs`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       const data = await response.json();
 
       const validated = arrayOfUserJobsValidator.safeParse(data);
@@ -85,8 +88,8 @@ const Userjobs = () => {
 
     try {
       const url = selectedBid
-        ? `http://localhost:3001/userJobs/${selectedUserJob.id}/bids/${selectedBid.id}`
-        : `http://localhost:3001/userJobs/${selectedUserJob.id}/bids`;
+        ? `${process.env.NEXT_PUBLIC_API_URL}/userJobs/${selectedUserJob.id}/bids/${selectedBid.id}`
+        : `${process.env.NEXT_PUBLIC_API_URL}/userJobs/${selectedUserJob.id}/bids`;
       const method = selectedBid ? "PATCH" : "POST";
 
       const response = await fetch(url, {
@@ -219,9 +222,9 @@ const Userjobs = () => {
 
                       <div className="mt-4 flex justify-between">
                         <div>
-                          <p>
+                          {/* <p>
                             <strong>Lowest Bid:</strong> ${lowestBid.amount}
-                          </p>
+                          </p> */}
                           {!userJob.Bid.some(
                             (bid) => bid.garageId === garageId
                           ) && (

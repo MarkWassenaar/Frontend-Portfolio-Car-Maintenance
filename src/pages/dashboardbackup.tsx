@@ -105,7 +105,7 @@ const DashboardPage = () => {
     if (!token) return;
 
     try {
-      const response = await fetch(`http://localhost:3001/car`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/car`, {
         method: "POST",
         body: JSON.stringify(data),
         headers: {
@@ -130,12 +130,15 @@ const DashboardPage = () => {
     if (!token || !selectedCar) return;
 
     try {
-      const response = await fetch(`http://localhost:3001/userJob/${jobId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/userJob/${jobId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (response.ok) {
         // Update the selectedCar state to reflect the removed job
@@ -154,12 +157,15 @@ const DashboardPage = () => {
     if (!token) return;
 
     try {
-      const response = await fetch(`http://localhost:3001/car/${carId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/car/${carId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (response.ok) {
         setCars((prevCars) => prevCars.filter((car) => car.id !== carId));
@@ -177,7 +183,7 @@ const DashboardPage = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:3001/car/${selectedCar.id}/job`,
+        `${process.env.NEXT_PUBLIC_API_URL}/car/${selectedCar.id}/job`,
         {
           method: "POST",
           body: JSON.stringify(data),
@@ -216,7 +222,7 @@ const DashboardPage = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:3001/bid/${bidId}/accept`,
+        `${process.env.NEXT_PUBLIC_API_URL}/bid/${bidId}/accept`,
         {
           method: "PATCH",
           headers: {
@@ -245,7 +251,10 @@ const DashboardPage = () => {
   const getJobsFromApi = async () => {
     if (!token) return;
     try {
-      const response = await fetch(`http://localhost:3001/jobs`, {});
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/jobs`,
+        {}
+      );
       const data = await response.json();
       setAllJobs(data);
     } catch (error) {
@@ -255,11 +264,14 @@ const DashboardPage = () => {
 
   const getUpdatedCarFromApi = async (carId: number, token: string) => {
     try {
-      const response = await fetch(`http://localhost:3001/car/${carId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/car/${carId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       const data = await response.json();
       const validated = carValidator.safeParse(data);
       if (validated.success) {
@@ -291,11 +303,14 @@ const DashboardPage = () => {
 
   const getCarsFromApi = async (token: string) => {
     try {
-      const response = await fetch("http://localhost:3001/dashboard", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/dashboard`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       const data = await response.json();
 
       const validated = arrayOfCarsValidator.safeParse(data);

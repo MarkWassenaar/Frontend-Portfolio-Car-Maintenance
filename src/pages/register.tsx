@@ -35,13 +35,16 @@ const RegisterPage = () => {
   }, [router]);
 
   const handleRegisterFormSubmit = async (data: RegisterUser) => {
-    const response = await fetch(`http://localhost:3001/register`, {
-      method: "POST",
-      body: JSON.stringify({ ...data }),
-      headers: {
-        "content-type": "application/json",
-      },
-    });
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/register`,
+      {
+        method: "POST",
+        body: JSON.stringify({ ...data }),
+        headers: {
+          "content-type": "application/json",
+        },
+      }
+    );
 
     if (response.ok) {
       router.push("/login");
