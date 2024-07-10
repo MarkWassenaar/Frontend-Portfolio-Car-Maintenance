@@ -42,47 +42,21 @@ export const arrayOfUserJobsValidator = z.array(userJobValidator);
 export type UserJob = z.infer<typeof userJobValidator>;
 export type Bid = z.infer<typeof userJobValidator>["Bid"][0];
 
-interface PageState {
-  userJob: UserJob[];
-  garageId: number | null;
-  bidAmount: number;
-  showBidModal: boolean;
-  selectedUserJob: UserJob | null;
-  selectedBid: Bid | null;
-  showModal: boolean;
-  contact: { name: string; phone: string } | null;
-}
-
 const GaragePage = () => {
   const router = useRouter();
   const [token, setToken] = useState<string | null>(null);
   const [error, setError] = useState<ZodError | null>(null);
-
-  const [pageState, setPageState] = useState<PageState>({
-    userJob: [],
-    garageId: null,
-    bidAmount: 0,
-    showBidModal: false,
-    selectedUserJob: null,
-    selectedBid: null,
-    showModal: false,
-    contact: null,
-  });
-
-  const { userJob, selectedUserJob, garageId, selectedBid, contact } =
-    pageState;
-
-  // const [userJob, setUserJob] = useState<UserJob[]>([]);
-  // const [garageId, setGarageId] = useState<number | null>(null);
-  // const [bidAmount, setBidAmount] = useState<number>(0);
-  // const [showBidModal, setShowBidModal] = useState<boolean>(false);
-  // const [selectedUserJob, setSelectedUserJob] = useState<UserJob | null>(null);
-  // const [selectedBid, setSelectedBid] = useState<Bid | null>(null);
-  // const [showModal, setShowModal] = useState(false);
-  // const [contact, setContact] = useState<{
-  //   name: string;
-  //   phone: string;
-  // } | null>(null);
+  const [userJob, setUserJob] = useState<UserJob[]>([]);
+  const [garageId, setGarageId] = useState<number | null>(null);
+  const [bidAmount, setBidAmount] = useState<number>(0);
+  const [showBidModal, setShowBidModal] = useState<boolean>(false);
+  const [selectedUserJob, setSelectedUserJob] = useState<UserJob | null>(null);
+  const [selectedBid, setSelectedBid] = useState<Bid | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [contact, setContact] = useState<{
+    name: string;
+    phone: string;
+  } | null>(null);
 
   const getUserJobsFromApi = async (token: string) => {
     try {
@@ -99,9 +73,14 @@ const GaragePage = () => {
       const validated = arrayOfUserJobsValidator.safeParse(data);
 
       if (validated.success) {
-        // useState updater function, very usefull
-        setPageState((ps) => ({ ...ps, userJob: validated.data }));
-        // setUserJob(validated.data);
+        setUserJob(validated.data);
+        const firstUserJob = validated.data[0];
+        if (firstUserJob && firstUserJob.Bid.length > 0) {
+          const firstBid = firstUserJob.Bid[0];
+          setGarageId(firstBid.garageId);
+        } else {
+          setGarageId(null);
+        }
       } else {
         setError(validated.error);
       }
@@ -133,35 +112,24 @@ const GaragePage = () => {
         }
       );
       const meData = await meRes.json();
-      console.log("meData", meData);
-      console.log("meData.id:", meData.id);
-      // setGarageId(meData.id);
-      setPageState({ ...pageState, garageId: meData.id });
-      getUserJobsFromApi(tokenFromStorage);
+      setGarageId(meData.id);
     };
     getMe();
 
-    // console.log("garageID: ", garageId);
+    getUserJobsFromApi(tokenFromStorage);
   }, [router]);
 
   const handleContactUser = (userJob: UserJob) => {
-    // setContact({
-    //   name: userJob.car.user.username,
-    //   phone: userJob.car.user.phonenumber,
-    // });
-    // setShowModal(true);
-    setPageState({
-      ...pageState,
-      contact: {
-        phone: userJob.car.user.phonenumber,
-        name: userJob.car.user.username,
-      },
-      showModal: true,
+    setContact({
+      name: userJob.car.user.username,
+      phone: userJob.car.user.phonenumber,
     });
+    setShowModal(true);
   };
 
   const closeModal = () => {
-    setPageState({ ...pageState, showModal: false, contact: null });
+    setShowModal(false);
+    setContact(null);
   };
 
   const handleRemoveBid = async (bidId: number) => {
@@ -189,17 +157,10 @@ const GaragePage = () => {
   };
 
   const handleEditBid = (userJob: UserJob, bid: Bid) => {
-    // setSelectedUserJob(userJob);
-    // setSelectedBid(bid);
-    // setBidAmount(bid.amount);
-    // setShowBidModal(true);
-    setPageState({
-      ...pageState,
-      selectedUserJob: userJob,
-      selectedBid: bid,
-      bidAmount: bid.amount,
-      showBidModal: true,
-    });
+    setSelectedUserJob(userJob);
+    setSelectedBid(bid);
+    setBidAmount(bid.amount);
+    setShowBidModal(true);
   };
 
   const handleSubmitBid = async () => {
@@ -216,7 +177,7 @@ const GaragePage = () => {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              amount: pageState.bidAmount,
+              amount: bidAmount,
             }),
           }
         );
@@ -231,17 +192,10 @@ const GaragePage = () => {
       console.error("An error occurred while submitting the bid:", error);
     }
 
-    // setShowBidModal(false);
-    // setSelectedUserJob(null);
-    // setSelectedBid(null);
-    // setBidAmount(0);
-    setPageState({
-      ...pageState,
-      selectedUserJob: null,
-      selectedBid: null,
-      bidAmount: 0,
-      showBidModal: false,
-    });
+    setShowBidModal(false);
+    setSelectedUserJob(null);
+    setSelectedBid(null);
+    setBidAmount(0);
   };
 
   if (error !== null) {
@@ -272,17 +226,13 @@ const GaragePage = () => {
     )
   );
 
-  const unaceptedJobs = userJob.filter((job) => {
-    return !job.Bid.some((bid) => bid.accepted);
-  });
-
   return (
     <Layout>
       <div className="p-4 mt-32">
         <div className="flex justify-between items-center">
           <div className="flex-1"></div>
           <h1 className="text-2xl font-bold mb-6 text-center flex-grow">
-            Bids Overview for garage {pageState.garageId}
+            Bids Overview
           </h1>
           <div className="flex-1 flex justify-end">
             <Link href="/userjobs">
@@ -302,7 +252,7 @@ const GaragePage = () => {
               acceptedJobs.map((userJob, index) => (
                 <div
                   key={index}
-                  className="p-2 mb-2 bg-white rounded flex items-start cursor-pointer shadow-lg border-2 border-blue-500  transition-all duration-75 hover:scale-105"
+                  className="p-2 mb-2 bg-white rounded shadow flex items-start"
                 >
                   <div className="mr-4">
                     <p className="font-semibold text-lg">
@@ -345,7 +295,7 @@ const GaragePage = () => {
                 </div>
               ))
             )}
-            {pageState.showModal && contact && (
+            {showModal && contact && (
               <ContactUser
                 name={contact.name}
                 phone={contact.phone}
@@ -364,17 +314,13 @@ const GaragePage = () => {
                   ...bid.userJob.Bid.map((bid) => bid.amount)
                 );
                 return (
-                  <div
-                    key={index}
-                    className="p-2 mb-2 bg-white rounded cursor-pointer shadow-lg border-2 border-blue-500  transition-all duration-75 hover:scale-105"
-                  >
+                  <div key={index} className="p-2 mb-2 bg-white rounded shadow">
                     <div className="flex flex-col rounded-lg">
-                      <div className="flex justify-between items-center bg-white rounded-t-lg border-b border-gray-200 px-4 py-2">
-                        <p className="font-bold text-lg text-center flex-1">
+                      <div className="flex justify-center items-center h-1/5 mt-4 mb-12">
+                        <p className="font-bold text-lg">
                           {bid.userJob.job.description}
                         </p>
                       </div>
-
                       <div className="flex justify-between items-center h-24 mb-8 bg-gradient-to-b from-blue-500 to-transparent pl-4 pr-4 rounded-sm">
                         <div className="ml-12">
                           <p className="mb-1 text-base">
@@ -392,6 +338,10 @@ const GaragePage = () => {
                       </div>
                       <div className="flex justify-between items-center h-2/5 px-8 mb-4 mt-12">
                         <div className="flex flex-col items-center">
+                          <p className="font-bold">Bid</p>
+                          <p>{bid.amount}</p>
+                        </div>
+                        <div className="flex flex-col items-center">
                           <p className="font-bold">Year</p>
                           <p>{bid.userJob.car.year}</p>
                         </div>
@@ -407,30 +357,21 @@ const GaragePage = () => {
                           <p>{bid.userJob.lastService.toLocaleDateString()}</p>
                         </div>
                       </div>
-                    </div>
-
-                    <div className="mt-4 flex justify-center gap-[4rem]">
-                      <div>
-                        <p>
-                          <strong>Lowest Bid:</strong> €{lowestBid}
-                        </p>
-                      </div>
-
                       <div className="flex flex-col items-center">
-                        <p>
-                          <strong>Your Bid:</strong> €{bid.amount}
-                        </p>
-                        <button
-                          onClick={() => handleEditBid(bid.userJob, bid)}
-                          className="mt-2 p-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
-                        >
-                          Edit Bid
-                        </button>
+                        <p className="font-bold">Lowest Bid</p>
+                        <p>${lowestBid}</p>
                       </div>
-
+                    </div>
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => handleEditBid(bid.userJob, bid)}
+                        className="p-2 mt-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                      >
+                        Edit Bid
+                      </button>
                       <button
                         onClick={() => handleRemoveBid(bid.id)}
-                        className="p-2 bg-red-500 text-white rounded hover:bg-red-600 ml-auto"
+                        className="p-2 mt-2 bg-red-500 text-white rounded hover:bg-red-600"
                       >
                         Remove Bid
                       </button>
@@ -443,7 +384,7 @@ const GaragePage = () => {
         </div>
       </div>
 
-      {pageState.showBidModal && selectedUserJob && (
+      {showBidModal && selectedUserJob && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
           <div className="bg-white p-6 rounded-lg w-1/2">
             <h2 className="text-xl font-bold mb-4">
@@ -463,26 +404,18 @@ const GaragePage = () => {
             </p>
             <input
               type="number"
-              value={pageState.bidAmount}
-              onChange={(e) =>
-                setPageState({
-                  ...pageState,
-                  bidAmount: parseFloat(e.target.value),
-                })
-              }
+              value={bidAmount}
+              onChange={(e) => setBidAmount(parseFloat(e.target.value))}
               className="border border-gray-300 rounded-lg p-2 mt-2 w-full"
               placeholder="Enter bid amount"
             />
             <div className="mt-4 flex justify-end">
               <button
                 onClick={() => {
-                  setPageState({
-                    ...pageState,
-                    selectedUserJob: null,
-                    selectedBid: null,
-                    bidAmount: 0,
-                    showBidModal: false,
-                  });
+                  setShowBidModal(false);
+                  setSelectedUserJob(null);
+                  setSelectedBid(null);
+                  setBidAmount(0);
                 }}
                 className="mr-2 px-4 py-2 bg-gray-500 text-white rounded-lg"
               >
@@ -498,6 +431,7 @@ const GaragePage = () => {
           </div>
         </div>
       )}
+      {/* </div> */}
     </Layout>
   );
 };

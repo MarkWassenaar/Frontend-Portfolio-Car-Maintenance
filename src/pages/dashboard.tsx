@@ -4,9 +4,6 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { ZodError, z } from "zod";
-import { CheckIcon, ChevronRightIcon } from "lucide-react";
-
-import { AnimatedSubscribeButton } from "@/components/magicui/animated-subscribe-button";
 
 const carValidator = z
   .object({
@@ -535,7 +532,6 @@ const DashboardPage = () => {
           {selectedCar ? (
             <>
               {/* Add Job Form */}
-
               <div className="flex justify-between items-center mb-4">
                 <h1 className="text-2xl font-bold mb-4">
                   Jobs for {selectedCar.make} {selectedCar.model}
@@ -606,12 +602,14 @@ const DashboardPage = () => {
                   </form>
                 </div>
               )}
-
               {/* Overview of Selected Jobs */}
 
               <div className="space-y-4">
                 {selectedCar.UserJob.map((job) => (
-                  <div key={job.id} className="flex items-start w-[800px]">
+                  <div
+                    key={job.id}
+                    className="flex items-start w-[800px] rounded p-4 cursor-pointer shadow-lg border-2 border-blue-500  transition-all duration-75 hover:scale-105"
+                  >
                     <div className="mr-4 ">
                       <p className="font-semibold text-lg">
                         {job.lastService.toLocaleDateString("en-US", {
@@ -635,15 +633,16 @@ const DashboardPage = () => {
                         <li>
                           <p>Total Bids: {job.Bid.length}</p>
                           <p>
-                            Lowest Bid:{" "}
+                            Lowest Bid: €{" "}
                             {job.Bid.length > 0
                               ? Math.min(...job.Bid.map((bid) => bid.amount))
                               : "No bids"}
                           </p>
                           {job.Bid.some((bid) => bid.accepted) ? (
                             <p>
-                              <span className="text-green-500">&#x2714;</span>{" "}
-                              You have accepted an offer!
+                              <span className="text-green-600">
+                                You have accepted an offer!
+                              </span>{" "}
                             </p>
                           ) : (
                             <p>No accepted offers yet</p>
@@ -668,7 +667,7 @@ const DashboardPage = () => {
                                 className="flex items-center space-x-2"
                               >
                                 <button
-                                  className={`flex p-4 m-1 text-white rounded ${
+                                  className={`flex p-4 m-1 w-[10rem] text-white rounded ${
                                     acceptedBids[job.id] === bid.id
                                       ? ` bg-green-400 hover:bg-green-500 `
                                       : ` bg-yellow-400 hover:bg-yellow-500`
@@ -681,11 +680,18 @@ const DashboardPage = () => {
                                     ? "Accepted Bid"
                                     : "Accept Bid"}
                                 </button>
-
-                                <span>
-                                  Bid Amount: {bid.amount}, Garage:{" "}
-                                  {bid.garage.name}
-                                </span>
+                                <div className="flex flex-col">
+                                  <p>
+                                    <strong>Bid Amount:</strong> €{bid.amount}
+                                  </p>
+                                  <p>
+                                    <strong>Garage:</strong>
+                                    <a href="https://google.com">
+                                      {" "}
+                                      {bid.garage.name}
+                                    </a>
+                                  </p>
+                                </div>
                               </li>
                             ))}
                           </ul>

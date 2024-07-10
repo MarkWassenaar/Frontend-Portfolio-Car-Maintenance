@@ -4,19 +4,54 @@ import { useEffect, useState } from "react";
 import { ZodError } from "zod";
 import { Bid, UserJob, arrayOfUserJobsValidator } from "./garage";
 
+interface PageState {
+  userJobs: UserJob[];
+  garageId: number | null;
+  bidAmount: number;
+  showBidModal: boolean;
+  selectedUserJob: UserJob | null;
+  selectedBid: Bid | null;
+  filterDescription: string;
+  filterBids: string;
+  filterBidAmount: string;
+}
+
 const Userjobs = () => {
   const router = useRouter();
   const [token, setToken] = useState<string | null>(null);
   const [error, setError] = useState<ZodError | null>(null);
-  const [userJobs, setUserJobs] = useState<UserJob[]>([]);
-  const [garageId, setGarageId] = useState<number | null>(null);
-  const [bidAmount, setBidAmount] = useState<number>(0);
-  const [showBidModal, setShowBidModal] = useState<boolean>(false);
-  const [selectedUserJob, setSelectedUserJob] = useState<UserJob | null>(null);
-  const [selectedBid, setSelectedBid] = useState<Bid | null>(null);
-  const [filterDescription, setFilterDescription] = useState<string>("");
-  const [filterBids, setFilterBids] = useState<string>("");
-  const [filterBidAmount, setFilterBidAmount] = useState<string>("");
+  // const [userJobs, setUserJobs] = useState<UserJob[]>([]);
+  // const [garageId, setGarageId] = useState<number | null>(null);
+  // const [bidAmount, setBidAmount] = useState<number>(0);
+  // const [showBidModal, setShowBidModal] = useState<boolean>(false);
+  // const [selectedUserJob, setSelectedUserJob] = useState<UserJob | null>(null);
+  // const [selectedBid, setSelectedBid] = useState<Bid | null>(null);
+  // const [filterDescription, setFilterDescription] = useState<string>("");
+  // const [filterBids, setFilterBids] = useState<string>("");
+  // const [filterBidAmount, setFilterBidAmount] = useState<string>("");
+
+  const [pageState, setPageState] = useState<PageState>({
+    userJobs: [],
+    garageId: null,
+    bidAmount: 0,
+    showBidModal: false,
+    selectedUserJob: null,
+    selectedBid: null,
+    filterDescription: "",
+    filterBids: "",
+    filterBidAmount: "",
+  });
+
+  const {
+    userJobs,
+    garageId,
+    selectedUserJob,
+    selectedBid,
+    bidAmount,
+    filterBidAmount,
+    filterBids,
+    filterDescription,
+  } = pageState;
 
   const getUserJobsFromApi = async (token: string) => {
     try {
@@ -33,17 +68,11 @@ const Userjobs = () => {
       const validated = arrayOfUserJobsValidator.safeParse(data);
 
       if (validated.success) {
-        const filteredJobs = validated.data.filter(
-          (job) => job.Bid.every((bid) => !bid.accepted) // Filter jobs without any accepted bid
+        const filteredJobs = validated.data.filter((job) =>
+          job.Bid.every((bid) => !bid.accepted)
         );
-        setUserJobs(filteredJobs);
-        const firstUserJob = filteredJobs[0];
-        if (firstUserJob && firstUserJob.Bid.length > 0) {
-          const firstBid = firstUserJob.Bid[0];
-          setGarageId(firstBid.garageId);
-        } else {
-          setGarageId(null);
-        }
+        // setUserJobs(filteredJobs);
+        setPageState((ps) => ({ ...ps, userJobs: filteredJobs }));
       } else {
         setError(validated.error);
       }
@@ -66,41 +95,73 @@ const Userjobs = () => {
 
     setToken(tokenFromStorage);
 
+    const getMe = async () => {
+      const meRes = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/garage/me`,
+        {
+          headers: {
+            Authorization: `Bearer ${tokenFromStorage}`,
+          },
+        }
+      );
+      const meData = await meRes.json();
+      // setGarageId(meData.id);
+      setPageState({ ...pageState, garageId: meData.id });
+    };
+    getMe();
     getUserJobsFromApi(tokenFromStorage);
   }, [router]);
 
   const handleMakeBid = (userJob: UserJob) => {
-    setSelectedUserJob(userJob);
-    setSelectedBid(null);
-    setBidAmount(0);
-    setShowBidModal(true);
+    // setSelectedUserJob(userJob);
+    // setSelectedBid(null);
+    // setBidAmount(0);
+    // setShowBidModal(true);
+    setPageState({
+      ...pageState,
+      selectedUserJob: userJob,
+      selectedBid: null,
+      bidAmount: 0,
+      showBidModal: true,
+    });
   };
 
   const handleEditBid = (userJob: UserJob, bid: Bid) => {
-    setSelectedUserJob(userJob);
-    setSelectedBid(bid);
-    setBidAmount(bid.amount);
-    setShowBidModal(true);
+    // setSelectedUserJob(userJob);
+    // setSelectedBid(bid);
+    // setBidAmount(bid.amount);
+    // setShowBidModal(true);
+    setPageState({
+      ...pageState,
+      selectedUserJob: userJob,
+      selectedBid: bid,
+      bidAmount: bid.amount,
+      showBidModal: true,
+    });
   };
 
   const handleSubmitBid = async () => {
     if (!token || !selectedUserJob) return;
 
     try {
-      const url = selectedBid
-        ? `${process.env.NEXT_PUBLIC_API_URL}/userJobs/${selectedUserJob.id}/bids/${selectedBid.id}`
-        : `${process.env.NEXT_PUBLIC_API_URL}/userJobs/${selectedUserJob.id}/bids`;
-      const method = selectedBid ? "PATCH" : "POST";
+      let url, method;
+
+      if (selectedBid) {
+        url = `${process.env.NEXT_PUBLIC_API_URL}/userJobs/${selectedUserJob.id}/bids/${selectedBid.id}`;
+        method = "PATCH";
+      } else {
+        url = `${process.env.NEXT_PUBLIC_API_URL}/userJobs/${selectedUserJob.id}/bids`;
+        method = "POST";
+      }
 
       const response = await fetch(url, {
-        method,
+        method: method,
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           amount: bidAmount,
-          garageId: garageId,
         }),
       });
 
@@ -113,10 +174,17 @@ const Userjobs = () => {
       console.error("An error occurred while submitting the bid:", error);
     }
 
-    setShowBidModal(false);
-    setSelectedUserJob(null);
-    setSelectedBid(null);
-    setBidAmount(0);
+    // setShowBidModal(false);
+    // setSelectedUserJob(null);
+    // setSelectedBid(null);
+    // setBidAmount(0);
+    setPageState({
+      ...pageState,
+      showBidModal: false,
+      selectedUserJob: null,
+      selectedBid: null,
+      bidAmount: 0,
+    });
   };
 
   const filteredJobs = userJobs.filter((job) => {
@@ -146,19 +214,25 @@ const Userjobs = () => {
             type="text"
             placeholder="Job Description"
             value={filterDescription}
-            onChange={(e) => setFilterDescription(e.target.value)}
+            onChange={(e) =>
+              setPageState({ ...pageState, filterDescription: e.target.value })
+            }
             className="border border-gray-300 rounded-lg p-2 mb-4 w-full"
           />
           <input
             type="text"
             placeholder="Number of bids"
             value={filterBids}
-            onChange={(e) => setFilterBids(e.target.value)}
+            onChange={(e) =>
+              setPageState({ ...pageState, filterBids: e.target.value })
+            }
             className="border border-gray-300 rounded-lg p-2 mb-4 w-full"
           />
           <select
             value={filterBidAmount}
-            onChange={(e) => setFilterBidAmount(e.target.value)}
+            onChange={(e) =>
+              setPageState({ ...pageState, filterBidAmount: e.target.value })
+            }
             className="border border-gray-300 rounded-lg p-2 mb-4 w-full"
           >
             <option value="">Bid Amount</option>
@@ -171,7 +245,7 @@ const Userjobs = () => {
           {filteredJobs.length === 0 ? (
             <p>No jobs available.</p>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid mr-[1rem] grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-[4rem]">
               {filteredJobs.map((userJob) => {
                 const lowestBid = userJob.Bid.reduce(
                   (lowest, bid) => (bid.amount < lowest.amount ? bid : lowest),
@@ -184,7 +258,7 @@ const Userjobs = () => {
                 return (
                   <div
                     key={userJob.id}
-                    className="p-2 mb-2 bg-white rounded shadow"
+                    className="p-2 mb-2 bg-white rounded cursor-pointer shadow-lg border-2 border-blue-500  transition-all duration-75 hover:scale-105"
                   >
                     <div className="flex flex-col rounded-lg">
                       <div className="flex justify-center items-center h-1/5 my-4">
@@ -200,7 +274,7 @@ const Userjobs = () => {
                         <img
                           src={userJob.car.img}
                           alt="Car"
-                          className="w-3/5"
+                          className="w-2/5 rounded-full"
                         />
                       </div>
                       <div className="flex justify-between items-center h-2/5 px-8 mb-4">
@@ -222,9 +296,14 @@ const Userjobs = () => {
 
                       <div className="mt-4 flex justify-between">
                         <div>
-                          {/* <p>
-                            <strong>Lowest Bid:</strong> ${lowestBid.amount}
-                          </p> */}
+                          {userJob.Bid.length > 0 ? (
+                            <p>
+                              <strong>Lowest Bid:</strong> €{lowestBid.amount}
+                            </p>
+                          ) : (
+                            <p>Be the first to bid</p>
+                          )}
+
                           {!userJob.Bid.some(
                             (bid) => bid.garageId === garageId
                           ) && (
@@ -239,7 +318,7 @@ const Userjobs = () => {
                         {garageBid && (
                           <div>
                             <p>
-                              <strong>Your Bid:</strong> ${garageBid.amount}
+                              <strong>Your Bid:</strong> €{garageBid.amount}
                             </p>
                             <button
                               onClick={() => handleEditBid(userJob, garageBid)}
@@ -256,7 +335,7 @@ const Userjobs = () => {
               })}
             </div>
           )}
-          {showBidModal && selectedUserJob && (
+          {pageState.showBidModal && selectedUserJob && (
             <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
               <div className="bg-white p-6 rounded-lg w-1/2">
                 <h2 className="text-xl font-bold mb-4">
@@ -278,17 +357,25 @@ const Userjobs = () => {
                 <input
                   type="number"
                   value={bidAmount}
-                  onChange={(e) => setBidAmount(parseFloat(e.target.value))}
+                  onChange={(e) =>
+                    setPageState({
+                      ...pageState,
+                      bidAmount: parseFloat(e.target.value),
+                    })
+                  }
                   className="border border-gray-300 rounded-lg p-2 mt-2 w-full"
                   placeholder="Enter bid amount"
                 />
                 <div className="mt-4 flex justify-end">
                   <button
                     onClick={() => {
-                      setShowBidModal(false);
-                      setSelectedUserJob(null);
-                      setSelectedBid(null);
-                      setBidAmount(0);
+                      setPageState({
+                        ...pageState,
+                        showBidModal: false,
+                        selectedUserJob: null,
+                        selectedBid: null,
+                        bidAmount: 0,
+                      });
                     }}
                     className="mr-2 px-4 py-2 bg-gray-500 text-white rounded-lg"
                   >
