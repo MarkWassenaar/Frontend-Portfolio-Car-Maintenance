@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 const Footer = () => {
   return (
     <footer className="bg-blue-600 text-white py-8 drop-shadow-xl">
@@ -18,14 +20,13 @@ const Footer = () => {
           </a>
         </div>
         <div className="flex space-x-4">
-          <a href="#">
-            <img src="chatterox.jpg" alt="ChatterBox" className="h-6" />
-          </a>
-          <a href="#">
-            <img src="birbe.jpg" alt="Birber" className="h-6" />
-          </a>
-          <a href="#">
-            <img src="slowgra.jpeg" alt="DelayedGram" className="h-6" />
+          <a
+            className="flex gap-2"
+            href="https://www.linkedin.com/in/mark-wassenaar-profile"
+            target="_blank"
+          >
+            <img src="linkedIn.webp" alt="LinkedIn" className="h-6" />
+            LinkedIn
           </a>
         </div>
       </div>

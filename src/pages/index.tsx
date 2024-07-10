@@ -1,8 +1,7 @@
 import Link from "next/link";
 import Layout from "@/components/Layout";
-import { cn } from "../../public/lib/utils";
-
 import Marquee from "@/components/magicui/marquee";
+import ReviewCard from "@/components/ReviewCard";
 
 const reviews = [
   {
@@ -44,41 +43,6 @@ const reviews = [
 ];
 
 const firstRow = reviews.slice(0, reviews.length);
-const secondRow = reviews.slice(reviews.length / 2);
-const ReviewCard = ({
-  img,
-  name,
-  username,
-  body,
-}: {
-  img: string;
-  name: string;
-  username: string;
-  body: string;
-}) => {
-  return (
-    <figure
-      className={cn(
-        "relative w-96 cursor-pointer overflow-hidden rounded-xl border p-4",
-        // light styles
-        "border-gray-950/[.1] bg-gray-950/[.01] hover:bg-gray-950/[.05]",
-        // dark styles
-        "dark:border-gray-50/[.1] dark:bg-gray-50/[.10] dark:hover:bg-gray-50/[.15]"
-      )}
-    >
-      <div className="flex flex-row items-center gap-2">
-        <img className="rounded-full" width="32" height="32" alt="" src={img} />
-        <div className="flex flex-col">
-          <figcaption className="text-sm font-medium dark:text-white">
-            {name}
-          </figcaption>
-          <p className="text-xs font-medium dark:text-white/40">{username}</p>
-        </div>
-      </div>
-      <blockquote className="mt-2 text-sm">{body}</blockquote>
-    </figure>
-  );
-};
 
 const HomePage = () => {
   return (
@@ -104,7 +68,7 @@ const HomePage = () => {
             Get Started
           </Link>
           <Link
-            href="#learn-more"
+            href="#how-it-works"
             className="bg-blue-500 text-white py-2 px-4 rounded-full font-semibold ml-2 hover:bg-blue-700"
           >
             Learn More
@@ -177,23 +141,6 @@ const HomePage = () => {
           <div className="pointer-events-none absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-white dark:from-background"></div>
           <div className="pointer-events-none absolute inset-y-0 right-0 w-1/3 bg-gradient-to-l from-white dark:from-background"></div>
         </div>
-        {/* <div className="container mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-8">What Our Users Say</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-white p-6 rounded-lg shadow-lg">
-              <p>
-                `I used to break down by the side of the road, but Thanks to Pit
-                Stop Pal Ive got my car running Smoothly!` - Swendude
-              </p>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-lg">
-              <p>
-                `I love how I can compare bids from different garages and choose
-                the one that suits me best.` - Yoeran
-              </p>
-            </div>
-          </div>
-        </div> */}
       </section>
 
       <section id="garages" className="py-16">
