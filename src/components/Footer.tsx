@@ -9,25 +9,25 @@ const Footer = () => {
           <p>&copy; 2024 Car Maintenance Tracker. All rights reserved.</p>
         </div>
         <div className="flex space-x-4 mb-4 md:mb-0">
-          <a href="#" className="hover:underline">
+          <Link href="/" className="hover:underline">
             Home
-          </a>
-          <a href="#features" className="hover:underline">
+          </Link>
+          <Link href="/#features" className="hover:underline">
             Features
-          </a>
-          <a href="#how-it-works" className="hover:underline">
+          </Link>
+          <Link href="/#how-it-works" className="hover:underline">
             How It Works
-          </a>
+          </Link>
         </div>
         <div className="flex space-x-4">
-          <a
+          <Link
             className="flex gap-2"
             href="https://www.linkedin.com/in/mark-wassenaar-profile"
             target="_blank"
           >
             <img src="linkedIn.webp" alt="LinkedIn" className="h-6" />
             LinkedIn
-          </a>
+          </Link>
         </div>
       </div>
     </footer>

@@ -29,8 +29,11 @@ const RegisterPage = () => {
 
   useEffect(() => {
     const tokenFromStorage = localStorage.getItem("token");
-    if (tokenFromStorage !== null) {
-      router.push("/");
+    const typeFromStorage = localStorage.getItem("type");
+    if (tokenFromStorage !== null && typeFromStorage === "user") {
+      router.push("/dashboard");
+    } else if (tokenFromStorage !== null && typeFromStorage === "garage") {
+      router.push("/garage");
     }
   }, [router]);
 
