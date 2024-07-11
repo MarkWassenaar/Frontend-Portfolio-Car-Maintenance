@@ -8,7 +8,7 @@ const Footer = () => {
           <div className="font-bold text-xl">Car Maintenance Tracker</div>
           <p>&copy; 2024 Car Maintenance Tracker. All rights reserved.</p>
         </div>
-        <div className="flex space-x-4 mb-4 md:mb-0">
+        <div className="flex space-x-4 mr-64 mb-4 md:mb-0">
           <Link href="/" className="hover:underline">
             Home
           </Link>
