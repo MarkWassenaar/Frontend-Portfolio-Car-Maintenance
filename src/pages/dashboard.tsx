@@ -21,7 +21,7 @@ const carValidator = z
         lastService: z
           .string()
           .datetime()
-          .transform((str) => new Date(str)), // handle string as date
+          .transform((str) => new Date(str)),
         job: z.object({
           id: z.number().positive(),
           description: z.string(),
@@ -181,7 +181,6 @@ const DashboardPage = () => {
       );
 
       if (response.ok) {
-        // Update the selectedCar state to reflect the removed job
         const updatedCar = await getUpdatedCarFromApi(selectedCar.id, token);
         setSelectedCar(updatedCar);
         getCarsFromApi(token);
@@ -459,7 +458,6 @@ const DashboardPage = () => {
                   onClick={() => setSelectedCar(car)}
                 >
                   <div className="flex flex-col rounded-lg">
-                    {/* <div className="flex justify-center items-center h-1/5 my-4"></div> */}
                     <div
                       className={`flex justify-between items-center h-32 mb-8 gradient-${car.color} pl-4 pr-4 rounded-sm`}
                     >
@@ -693,6 +691,3 @@ const DashboardPage = () => {
 };
 
 export default DashboardPage;
-function toLowerCase(eerste_kleur: any) {
-  throw new Error("Function not implemented.");
-}

@@ -21,16 +21,6 @@ const Userjobs = () => {
   const router = useRouter();
   const [token, setToken] = useState<string | null>(null);
   const [error, setError] = useState<ZodError | null>(null);
-  // const [userJobs, setUserJobs] = useState<UserJob[]>([]);
-  // const [garageId, setGarageId] = useState<number | null>(null);
-  // const [bidAmount, setBidAmount] = useState<number>(0);
-  // const [showBidModal, setShowBidModal] = useState<boolean>(false);
-  // const [selectedUserJob, setSelectedUserJob] = useState<UserJob | null>(null);
-  // const [selectedBid, setSelectedBid] = useState<Bid | null>(null);
-  // const [filterDescription, setFilterDescription] = useState<string>("");
-  // const [filterBids, setFilterBids] = useState<string>("");
-  // const [filterBidAmount, setFilterBidAmount] = useState<string>("");
-
   const [pageState, setPageState] = useState<PageState>({
     userJobs: [],
     garageId: null,
@@ -72,7 +62,7 @@ const Userjobs = () => {
         const filteredJobs = validated.data.filter((job) =>
           job.Bid.every((bid) => !bid.accepted)
         );
-        // setUserJobs(filteredJobs);
+
         setPageState((ps) => ({ ...ps, userJobs: filteredJobs }));
       } else {
         setError(validated.error);
@@ -106,7 +96,7 @@ const Userjobs = () => {
         }
       );
       const meData = await meRes.json();
-      // setGarageId(meData.id);
+
       setPageState({ ...pageState, garageId: meData.id });
     };
     getMe();
@@ -114,10 +104,6 @@ const Userjobs = () => {
   }, [router]);
 
   const handleMakeBid = (userJob: UserJob) => {
-    // setSelectedUserJob(userJob);
-    // setSelectedBid(null);
-    // setBidAmount(0);
-    // setShowBidModal(true);
     setPageState({
       ...pageState,
       selectedUserJob: userJob,
@@ -128,10 +114,6 @@ const Userjobs = () => {
   };
 
   const handleEditBid = (userJob: UserJob, bid: Bid) => {
-    // setSelectedUserJob(userJob);
-    // setSelectedBid(bid);
-    // setBidAmount(bid.amount);
-    // setShowBidModal(true);
     setPageState({
       ...pageState,
       selectedUserJob: userJob,
@@ -175,10 +157,6 @@ const Userjobs = () => {
       console.error("An error occurred while submitting the bid:", error);
     }
 
-    // setShowBidModal(false);
-    // setSelectedUserJob(null);
-    // setSelectedBid(null);
-    // setBidAmount(0);
     setPageState({
       ...pageState,
       showBidModal: false,
@@ -399,5 +377,3 @@ const Userjobs = () => {
 };
 
 export default Userjobs;
-
-// "https://www.smashbros.com/wiiu-3ds/images/character/lizardon/main.png"

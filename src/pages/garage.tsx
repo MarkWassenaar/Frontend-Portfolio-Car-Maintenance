@@ -73,18 +73,6 @@ const GaragePage = () => {
   const { userJob, selectedUserJob, garageId, selectedBid, contact } =
     pageState;
 
-  // const [userJob, setUserJob] = useState<UserJob[]>([]);
-  // const [garageId, setGarageId] = useState<number | null>(null);
-  // const [bidAmount, setBidAmount] = useState<number>(0);
-  // const [showBidModal, setShowBidModal] = useState<boolean>(false);
-  // const [selectedUserJob, setSelectedUserJob] = useState<UserJob | null>(null);
-  // const [selectedBid, setSelectedBid] = useState<Bid | null>(null);
-  // const [showModal, setShowModal] = useState(false);
-  // const [contact, setContact] = useState<{
-  //   name: string;
-  //   phone: string;
-  // } | null>(null);
-
   const getUserJobsFromApi = async (token: string) => {
     try {
       const response = await fetch(
@@ -100,7 +88,6 @@ const GaragePage = () => {
       const validated = arrayOfUserJobsValidator.safeParse(data);
 
       if (validated.success) {
-        // useState updater function, very usefull
         setPageState((ps) => ({ ...ps, userJob: validated.data }));
       } else {
         setError(validated.error);

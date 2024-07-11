@@ -23,10 +23,6 @@ const Navbar = () => {
         </Link>
       </div>
       <ul className="flex gap-8 font-bold">
-        {/* <div className="font-thin text-sm">
-          {getToken && type === "user" && <p>logged in as user </p>}
-          {getToken && type === "garage" && <p>logged in as garage </p>}
-        </div> */}
         <Link className="hover:text-custom-blue" href="/">
           Home
         </Link>
