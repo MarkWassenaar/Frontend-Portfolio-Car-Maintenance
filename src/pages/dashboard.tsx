@@ -1,5 +1,6 @@
 import Layout from "@/components/Layout";
 import { zodResolver } from "@hookform/resolvers/zod";
+import CarMakeIcon from "@/components/CarMakeIcons";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -10,7 +11,7 @@ const carValidator = z
     id: z.number().positive(),
     make: z.string(),
     model: z.string(),
-    img: z.string().url().optional(),
+    color: z.string(),
     licenseplate: z.string(),
     year: z.number().int(),
     userId: z.number().positive(),
@@ -48,11 +49,15 @@ const newCarValidator = z
   .object({
     make: z.string(),
     model: z.string(),
-    img: z.string().optional().nullable(),
+    color: z.string(),
     licenseplate: z.string().min(1),
     year: z.number().int().positive(),
   })
   .strict();
+
+const registerCarValidator = z.object({
+  licenseplate: z.string().min(1),
+});
 
 const addJobValidator = z.object({
   jobId: z.number().int().positive(),
@@ -75,6 +80,7 @@ const DashboardPage = () => {
   const [showForm, setShowForm] = useState<boolean>(false);
   const [showJobForm, setShowJobForm] = useState<boolean>(false);
   const [allJobs, setAllJobs] = useState<any[]>([]);
+  const [newCar, setNewCar] = useState<NewCar | null>(null);
   const [viewingBidsForJobId, setViewingBidsForJobId] = useState<number | null>(
     null
   );
@@ -87,7 +93,7 @@ const DashboardPage = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<NewCar>({
-    resolver: zodResolver(newCarValidator),
+    resolver: zodResolver(registerCarValidator),
   });
 
   const {
@@ -99,28 +105,65 @@ const DashboardPage = () => {
   });
 
   const handleRegisterFormSubmit = async (data: NewCar) => {
+    console.log("hello");
     if (!token) return;
 
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/car`, {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+    const plate = data.licenseplate.replaceAll("-", "").toUpperCase();
 
-      if (response.ok) {
-        location.reload();
-        const createdCar = await response.json();
-        setCars((cars) => [...cars, createdCar]);
-      } else {
-        console.log("Failed to create item");
+    const getRDW = async () => {
+      try {
+        const response = await fetch(
+          `https://opendata.rdw.nl/resource/m9d7-ebf2.json?kenteken=${plate}`,
+          {
+            headers: {
+              "X-App-Token": `MMjlvXPZ0DhFis0N2MKXp4YVz`,
+            },
+          }
+        );
+        const rdwData = await response.json();
+        const thisCar = rdwData[0];
+        if (thisCar) {
+          const carData = {
+            ...data,
+            make: thisCar.merk,
+            model: thisCar.handelsbenaming,
+            color: thisCar.eerste_kleur.toLowerCase(),
+            year: parseInt(thisCar.datum_eerste_toelating.slice(0, 4)),
+          };
+          setNewCar(carData);
+
+          try {
+            const response = await fetch(
+              `${process.env.NEXT_PUBLIC_API_URL}/car`,
+              {
+                method: "POST",
+                body: JSON.stringify(carData),
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+
+            if (response.ok) {
+              const createdCar = await response.json();
+              setCars((cars) => [...cars, createdCar]);
+              router.reload();
+            } else {
+              console.log("Failed to create item");
+            }
+          } catch (error) {
+            console.error(error);
+          }
+        } else {
+          console.error("No data found for the given plate.");
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+
+    await getRDW();
   };
 
   const handleRemoveJob = async (jobId: number) => {
@@ -375,74 +418,6 @@ const DashboardPage = () => {
               <form onSubmit={handleSubmit(handleRegisterFormSubmit)}>
                 <div className="mb-4">
                   <label
-                    htmlFor="make"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Make
-                  </label>
-                  <input
-                    id="make"
-                    type="text"
-                    {...register("make")}
-                    className="mt-1 p-2 w-full border rounded"
-                  />
-                  {errors.make && (
-                    <p className="text-red-500">{errors.make.message}</p>
-                  )}
-                </div>
-                <div className="mb-4">
-                  <label
-                    htmlFor="model"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Model
-                  </label>
-                  <input
-                    id="model"
-                    type="text"
-                    {...register("model")}
-                    className="mt-1 p-2 w-full border rounded"
-                  />
-                  {errors.model && (
-                    <p className="text-red-500">{errors.model.message}</p>
-                  )}
-                </div>
-                <div className="mb-4">
-                  <label
-                    htmlFor="img"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Image
-                  </label>
-                  <input
-                    id="img"
-                    type="text"
-                    {...register("img")}
-                    className="mt-1 p-2 w-full border rounded"
-                  />
-                  {errors.img && (
-                    <p className="text-red-500">{errors.img.message}</p>
-                  )}
-                </div>
-                <div className="mb-4">
-                  <label
-                    htmlFor="year"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Year
-                  </label>
-                  <input
-                    id="year"
-                    type="number"
-                    {...register("year", { valueAsNumber: true })}
-                    className="mt-1 p-2 w-full border rounded"
-                  />
-                  {errors.year && (
-                    <p className="text-red-500">{errors.year.message}</p>
-                  )}
-                </div>
-                <div className="mb-4">
-                  <label
                     htmlFor="licenseplate"
                     className="block text-sm font-medium text-gray-700"
                   >
@@ -484,17 +459,16 @@ const DashboardPage = () => {
                   onClick={() => setSelectedCar(car)}
                 >
                   <div className="flex flex-col rounded-lg">
-                    <div className="flex justify-center items-center h-1/5 my-4"></div>
-                    <div className="flex justify-between items-center h-24 mb-8 bg-gradient-to-b from-blue-500 to-transparent pl-4 pr-4 rounded-sm">
+                    {/* <div className="flex justify-center items-center h-1/5 my-4"></div> */}
+                    <div
+                      className={`flex justify-between items-center h-32 mb-8 gradient-${car.color} pl-4 pr-4 rounded-sm`}
+                    >
                       <div>
                         <p className="mb-1 text-base ">{car.make}</p>
+
                         <p className="m-0 font-bold text-xl">{car.model}</p>
                       </div>
-                      <img
-                        src={car.img}
-                        alt="Car"
-                        className="w-2/5 rounded-full "
-                      />
+                      <CarMakeIcon make={car.make} />
                     </div>
                     <div className="flex justify-between items-center h-2/5 px-8 mb-4">
                       <div className="flex flex-col items-center">
@@ -719,3 +693,6 @@ const DashboardPage = () => {
 };
 
 export default DashboardPage;
+function toLowerCase(eerste_kleur: any) {
+  throw new Error("Function not implemented.");
+}

@@ -1,3 +1,4 @@
+import CarMakeIcon from "@/components/CarMakeIcons";
 import ContactUser from "@/components/ContactUser";
 import Layout from "@/components/Layout";
 import Link from "next/link";
@@ -23,7 +24,7 @@ export const userJobValidator = z.object({
     make: z.string(),
     model: z.string(),
     year: z.number(),
-    img: z.string().url(),
+    color: z.string(),
     licenseplate: z.string(),
     user: z.object({
       username: z.string(),
@@ -101,7 +102,6 @@ const GaragePage = () => {
       if (validated.success) {
         // useState updater function, very usefull
         setPageState((ps) => ({ ...ps, userJob: validated.data }));
-        // setUserJob(validated.data);
       } else {
         setError(validated.error);
       }
@@ -135,21 +135,14 @@ const GaragePage = () => {
       const meData = await meRes.json();
       console.log("meData", meData);
       console.log("meData.id:", meData.id);
-      // setGarageId(meData.id);
+
       setPageState({ ...pageState, garageId: meData.id });
       getUserJobsFromApi(tokenFromStorage);
     };
     getMe();
-
-    // console.log("garageID: ", garageId);
   }, [router]);
 
   const handleContactUser = (userJob: UserJob) => {
-    // setContact({
-    //   name: userJob.car.user.username,
-    //   phone: userJob.car.user.phonenumber,
-    // });
-    // setShowModal(true);
     setPageState({
       ...pageState,
       contact: {
@@ -189,10 +182,6 @@ const GaragePage = () => {
   };
 
   const handleEditBid = (userJob: UserJob, bid: Bid) => {
-    // setSelectedUserJob(userJob);
-    // setSelectedBid(bid);
-    // setBidAmount(bid.amount);
-    // setShowBidModal(true);
     setPageState({
       ...pageState,
       selectedUserJob: userJob,
@@ -230,11 +219,6 @@ const GaragePage = () => {
     } catch (error) {
       console.error("An error occurred while submitting the bid:", error);
     }
-
-    // setShowBidModal(false);
-    // setSelectedUserJob(null);
-    // setSelectedBid(null);
-    // setBidAmount(0);
     setPageState({
       ...pageState,
       selectedUserJob: null,
@@ -375,8 +359,10 @@ const GaragePage = () => {
                         </p>
                       </div>
 
-                      <div className="flex justify-between items-center h-24 mb-8 bg-gradient-to-b from-blue-500 to-transparent pl-4 pr-4 rounded-sm">
-                        <div className="ml-12">
+                      <div
+                        className={`flex justify-between items-center h-32 gradient-${bid.userJob.car.color} px-12 rounded-sm`}
+                      >
+                        <div>
                           <p className="mb-1 text-base">
                             {bid.userJob.car.make}
                           </p>
@@ -384,19 +370,15 @@ const GaragePage = () => {
                             {bid.userJob.car.model}
                           </p>
                         </div>
-                        <img
-                          src={bid.userJob.car.img}
-                          alt="Car"
-                          className="w-2/5"
-                        />
+                        <CarMakeIcon make={bid.userJob.car.make} />
                       </div>
-                      <div className="flex justify-between items-center h-2/5 px-8 mb-4 mt-12">
+                      <div className="flex justify-between items-center px-12 mb-4">
                         <div className="flex flex-col items-center">
                           <p className="font-bold">Year</p>
                           <p>{bid.userJob.car.year}</p>
                         </div>
 
-                        <div className="flex flex-col items-center">
+                        <div className="flex flex-col ml-14 items-center">
                           <p className="font-bold">Licenseplate</p>
                           <p className="mt-1 p-2 w-32 border rounded bg-dutch-license-plate-bg text-dutch-license-plate-text font-bold tracking-wide text-center uppercase">
                             {bid.userJob.car.licenseplate}
@@ -409,13 +391,7 @@ const GaragePage = () => {
                       </div>
                     </div>
 
-                    <div className="mt-4 flex justify-center gap-[4rem]">
-                      <div>
-                        <p>
-                          <strong>Lowest Bid:</strong> €{lowestBid}
-                        </p>
-                      </div>
-
+                    <div className="flex justify-between px-12">
                       <div className="flex flex-col items-center">
                         <p>
                           <strong>Your Bid:</strong> €{bid.amount}
@@ -428,9 +404,15 @@ const GaragePage = () => {
                         </button>
                       </div>
 
+                      <div>
+                        <p>
+                          <strong>Lowest Bid:</strong> €{lowestBid}
+                        </p>
+                      </div>
+
                       <button
                         onClick={() => handleRemoveBid(bid.id)}
-                        className="p-2 bg-red-500 text-white rounded hover:bg-red-600 ml-auto"
+                        className="p-2 h-12 mt-6  text-white rounded bg-red-500 hover:bg-red-600 "
                       >
                         Remove Bid
                       </button>

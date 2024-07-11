@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { ZodError } from "zod";
 import { Bid, UserJob, arrayOfUserJobsValidator } from "./garage";
+import CarMakeIcon from "@/components/CarMakeIcons";
 
 interface PageState {
   userJobs: UserJob[];
@@ -266,18 +267,18 @@ const Userjobs = () => {
                           {userJob.job.description}
                         </p>
                       </div>
-                      <div className="flex justify-between items-center h-24 mb-8 bg-gradient-to-b from-blue-500 to-transparent pl-4 pr-4 rounded-sm">
+                      <div
+                        className={`flex justify-between items-center h-24 mb-8 gradient-${userJob.car.color} px-4 rounded-sm`}
+                      >
                         <div>
-                          <p className="mb-1 text-xs">{userJob.car.make}</p>
-                          <p className="m-0 font-bold">{userJob.car.model}</p>
+                          <p className="mb-1 text-lg">{userJob.car.make}</p>
+                          <p className="m-0 text-xl font-bold">
+                            {userJob.car.model}
+                          </p>
                         </div>
-                        <img
-                          src={userJob.car.img}
-                          alt="Car"
-                          className="w-2/5 rounded-full"
-                        />
+                        <CarMakeIcon make={userJob.car.make} />
                       </div>
-                      <div className="flex justify-between items-center h-2/5 px-8 mb-4">
+                      <div className="flex justify-between items-center h-2/5 px-4 mb-4">
                         <div className="flex flex-col items-center">
                           <p className="font-bold">Year</p>
                           <p>{userJob.car.year}</p>
@@ -294,7 +295,7 @@ const Userjobs = () => {
                         </div>
                       </div>
 
-                      <div className="mt-4 flex justify-between">
+                      <div className="mt-4 px-4 flex justify-between">
                         <div>
                           {userJob.Bid.length > 0 ? (
                             <p>

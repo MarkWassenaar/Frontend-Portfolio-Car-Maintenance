@@ -2,4 +2,38 @@
 @tailwind components;
 @tailwind utilities;
 
+.gradient-oranje {
+  background: linear-gradient(180deg, #ffa500, rgba(255, 255, 255, 1) 85%);
+}
+.gradient-rood {
+  background: linear-gradient(180deg, #ff0000, rgba(255, 255, 255, 1) 85%);
+}
+.gradient-wit {
+  background: linear-gradient(180deg, #f7f7f7eb, rgba(255, 255, 255, 1) 85%);
+}
+.gradient-blauw {
+  background: linear-gradient(180deg, #0099f8, rgba(255, 255, 255, 1) 85%);
+}
+.gradient-groen {
+  background: linear-gradient(180deg, #00ff00, rgba(255, 255, 255, 1) 85%);
+}
+.gradient-geel {
+  background: linear-gradient(180deg, #ffff00, rgba(255, 255, 255, 1) 85%);
+}
+.gradient-grijs {
+  background: linear-gradient(180deg, #aaaaaac0, rgba(255, 255, 255, 1) 85%);
+}
+.gradient-bruin {
+  background: linear-gradient(180deg, #775924, rgba(255, 255, 255, 1) 85%);
+}
+.gradient-creme {
+  background: linear-gradient(180deg, #fffdd0, rgba(255, 255, 255, 1) 85%);
+}
+.gradient-paars {
+  background: linear-gradient(180deg, #fffdd0, rgba(255, 255, 255, 1) 85%);
+}
+.gradient-zwart {
+  background: linear-gradient(180deg, #000000, rgba(255, 255, 255, 1) 85%);
+}
+
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap");

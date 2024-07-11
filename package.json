@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.6.0",
+    "car-makes-icons": "^1.0.0",
     "clsx": "^2.1.1",
     "framer-motion": "^11.2.12",
     "lucide-react": "^0.400.0",

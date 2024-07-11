@@ -13,7 +13,7 @@ const Navbar = () => {
   }, []);
 
   return (
-    <nav className="flex bg-white fixed top-0 max-h-18 shadow-lg items-center justify-between text-stone-500  w-full p-4 list-none">
+    <nav className="flex bg-white z-30 fixed top-0 max-h-18 shadow-lg items-center justify-between text-stone-500  w-full p-4 list-none">
       <div className="flex gap-6 items-center font-bold text-custom-blue text-2xl">
         <Link href="/">
           <img className="w-20 h-18" src="/logo.png" />
@@ -23,23 +23,13 @@ const Navbar = () => {
         </Link>
       </div>
       <ul className="flex gap-8 font-bold">
-        <div className="font-thin text-sm">
+        {/* <div className="font-thin text-sm">
           {getToken && type === "user" && <p>logged in as user </p>}
           {getToken && type === "garage" && <p>logged in as garage </p>}
-        </div>
+        </div> */}
         <Link className="hover:text-custom-blue" href="/">
           Home
         </Link>
-
-        {/* {type === "user" ?
-        {getToken === null ? null : (
-          <Link className="hover:text-custom-blue" href="/dashboard">
-            Dashboard
-          </Link>
-        )} : {getToken === null ? null : (
-          <Link className="hover:text-custom-blue" href="/garage">
-            Dashboard
-          </Link>)}} */}
 
         {getToken !== null && type === "user" && (
           <Link className="hover:text-custom-blue" href="/dashboard">
